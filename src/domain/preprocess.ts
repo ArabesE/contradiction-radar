@@ -7,11 +7,13 @@ const DECISION = /\b(decided|decision|approved|committed|confirmed|final|must|sh
 const SUPERSEDING = /\b(supersed(?:e|ed|es)|replace(?:d|s)?|no longer|revised|updated decision|resolved)\b/i;
 const REQUIREMENT = /\b(must|shall|required|cannot|can't|may not|deadline|commit(?:ted)?|will)\b/i;
 const NEGATION = /\b(no|not|never|cannot|can't|won't|mustn't|without|disabled|prohibited)\b/i;
+export const MAX_NORMALIZE_CHARS = 4_000;
 
 export function normalizeText(text: string): string {
   return text
-    .replace(/<https?:\/\/[^>|]+(?:\|[^>]+)?>/g, ' ')
-    .replace(/<[@#][A-Z0-9]+(?:\|[^>]+)?>/g, ' ')
+    .slice(0, MAX_NORMALIZE_CHARS)
+    .replace(/<https?:\/\/[^<>|\s]+(?:\|[^<>]*)?>/g, ' ')
+    .replace(/<[@#][A-Z0-9]+(?:\|[^<>]*)?>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -29,10 +31,10 @@ export function extractMarkers(text: string): ContextMarkers {
   const normalized = normalizeText(text).toLowerCase();
   const environments = ENVIRONMENTS.filter((item) => new RegExp(`\\b${escapeRegex(item)}\\b`, 'i').test(normalized));
   const scopes = SCOPES.filter((item) => new RegExp(`\\b${escapeRegex(item)}\\b`, 'i').test(normalized));
-  const versions = [...normalized.matchAll(/\b(?:v(?:ersion)?\s*)?\d+(?:\.\d+){0,2}\b/gi)].map((match) => match[0]);
+  const versions = [...normalized.matchAll(/\b(?:v(?:ersion)?\s*\d+(?:\.\d+){0,2}|\d+\.\d+(?:\.\d+)?)\b/gi)].map((match) => match[0]);
   const timeMarkers = [
-    ...normalized.matchAll(/\b(?:q[1-4]\s*20\d{2}|20\d{2}|today|tomorrow|yesterday|this (?:week|month|quarter)|next (?:week|month|quarter)|before [a-z0-9 -]+|after [a-z0-9 -]+)\b/gi),
-  ].map((match) => match[0]);
+    ...normalized.matchAll(/\b(?:q[1-4]\s*20\d{2}|20\d{2}|today|tomorrow|yesterday|this (?:week|month|quarter)|next (?:week|month|quarter)|\d+\s+(?:days?|weeks?|months?)|one month|(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}|before [a-z0-9 -]+|after [a-z0-9 -]+)\b/gi),
+  ].map((match) => canonicalTime(match[0]));
   return {
     environments: unique(environments.map(canonicalEnvironment)),
     versions: unique(versions.map((item) => item.replace(/version\s*/i, 'v'))),
@@ -53,6 +55,11 @@ function canonicalEnvironment(value: string): string {
   return value;
 }
 
+function canonicalTime(value: string): string {
+  if (/^(?:30 days?|one month)$/i.test(value)) return '~1-month';
+  return value;
+}
+
 function unique(values: string[]): string[] {
   return [...new Set(values)];
 }
@@ -60,4 +67,3 @@ function unique(values: string[]): string[] {
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-

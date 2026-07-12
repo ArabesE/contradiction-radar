@@ -8,5 +8,4 @@
 6. Run unit/integration tests and a 24+ pair precision-focused evaluation; report measured results only.
 7. Add Task Scheduler startup, health/restart commands, local log hygiene, and recovery procedures.
 8. Produce diagrams, judge guide, recording package, subtitles, Devpost copy, and checklist.
-9. Run dependency, license, secret, history, and Codex Security scans; publish only after a clean preflight.
-
+9. Run dependency, license, secret, history, and repository security reviews; resolve surviving findings and publish only after a clean preflight.

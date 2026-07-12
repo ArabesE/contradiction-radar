@@ -14,7 +14,7 @@ Use `assistant.search.info` once per runtime/team cache window and `assistant.se
 
 ## 2026-07-12 — Local inference baseline
 
-Start with `Xenova/nli-deberta-v3-xsmall` through `@huggingface/transformers`, quantized ONNX where available. The runtime must validate label mapping and accuracy against the repository evaluation set. If initialization or licensing is unsuitable, preserve the deterministic fallback and document any replacement here.
+Use `Xenova/nli-deberta-v3-xsmall` through `@huggingface/transformers` as quantized ONNX, pinned at repository revision `2a4f614a701367a02d51389039afc998faeda637`. The source model `cross-encoder/nli-deberta-v3-xsmall` declares Apache-2.0. Validate the explicit contradiction/entailment/neutral mapping against the repository evaluation set. Preserve the deterministic fallback if initialization fails.
 
 ## 2026-07-12 — Conservative ensemble
 
@@ -28,3 +28,14 @@ Do not store Slack message bodies. Persist feedback identifiers and reason codes
 
 Official Devpost rules require a newly created eligible agent, English submission, public video under three minutes, architecture diagram, sandbox URL, and judge access. The deadline is 2026-07-13 17:00 PDT (20:00 EDT). Repository remains private until final audits pass.
 
+## 2026-07-12 — Workspace-granted direct runtime
+
+Run the installed workspace bot and app-level Socket Mode token directly through the compiled Node entrypoint. Slack CLI remains a development/manifest tool, not the long-running process supervisor. This avoids duplicate socket connections and makes the exact workspace identity verifiable with `auth.test`.
+
+## 2026-07-12 — Durable Windows operation
+
+Use a per-user Task Scheduler logon trigger named `Contradiction Radar`. `scripts/start.ps1` prevents duplicate processes, uses the Node 24 runtime, redirects body-free logs to ignored local storage, and records a PID. `npm run restart` rebuilds and replaces the process; `npm run health` checks team identity and search capability.
+
+## 2026-07-12 — Honest evaluation claim
+
+Report 28/28 only as exact performance on the frozen, hand-authored regression fixture. Explicitly state that the fixture is small, balanced, and product-designed—not an independent real-world benchmark. Retain the live Slack tests as separate integration evidence.

@@ -12,9 +12,10 @@ const schema = z.object({
   SLACK_BOT_TOKEN: z.string().startsWith('xoxb-'),
   SLACK_APP_TOKEN: z.string().startsWith('xapp-'),
   SLACK_SIGNING_SECRET: z.string().min(8).optional(),
-  SLACK_TEAM_ID: z.string().min(1).default('E0BGST8FARF'),
+  SLACK_TEAM_ID: z.string().min(1),
   SLACK_DEMO_CHANNEL_ID: z.string().min(1).optional(),
   NLI_MODEL_ID: z.string().min(1).default('Xenova/nli-deberta-v3-xsmall'),
+  NLI_MODEL_REVISION: z.string().min(7).default('2a4f614a701367a02d51389039afc998faeda637'),
   NLI_ALLOW_REMOTE_MODELS: booleanString,
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   FEEDBACK_PATH: z.string().default('data/feedback.jsonl'),
@@ -29,4 +30,3 @@ export function readConfig(): AppConfig {
 export function hasRuntimeSecrets(): boolean {
   return Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_APP_TOKEN);
 }
-

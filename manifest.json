@@ -36,7 +36,6 @@
     "scopes": {
       "bot": [
         "assistant:write",
-        "channels:history",
         "chat:write",
         "chat:write.customize",
         "im:history",
@@ -60,4 +59,3 @@
     "token_rotation_enabled": false
   }
 }
-

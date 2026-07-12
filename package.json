@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Permission-aware Slack agent for conservative contradiction detection.",
+  "main": "dist/src/index.js",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -10,10 +11,13 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node --enable-source-maps dist/index.js",
+    "start": "node --enable-source-maps dist/src/index.js",
     "dev": "tsx watch src/index.ts",
     "health": "tsx scripts/health.ts",
+    "service:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1",
     "restart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restart.ps1",
+    "service:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-task-scheduler.ps1",
+    "preflight": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/preflight.ps1",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "evaluate": "tsx scripts/evaluate.ts",
     "test": "vitest run",
@@ -34,6 +38,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@slack/cli-hooks": "^1.3.3",
     "@types/node": "^24.10.1",
     "@vitest/coverage-v8": "^4.0.14",
     "eslint": "^9.39.1",

@@ -2,6 +2,7 @@ import { App, LogLevel, type BlockAction } from '@slack/bolt';
 import type { WebClient } from '@slack/web-api';
 import { readConfig } from './config.js';
 import { classifyPair, rankFindings } from './domain/classifier.js';
+import { BoundedTtlCache } from './domain/bounded-ttl-cache.js';
 import { extractClaim } from './domain/preprocess.js';
 import { logger } from './logger.js';
 import { LocalNliEngine } from './nli/model.js';
@@ -10,9 +11,11 @@ import { recordFeedback } from './slack/feedback.js';
 import { SlackSearch } from './slack/search.js';
 import type { Evidence, Finding, RadarLabel } from './types.js';
 
-interface PendingContext {
+interface CachedFinding {
   finding: Finding;
-  expiresAt: number;
+  userId: string;
+  channelId: string;
+  threadTs: string;
 }
 
 interface ActionPayload {
@@ -30,8 +33,14 @@ export function createApp(): App {
     socketMode: true,
     logLevel: LogLevel.ERROR,
   });
-  const nli = new LocalNliEngine(config.NLI_MODEL_ID, config.NLI_ALLOW_REMOTE_MODELS);
-  const pending = new Map<string, PendingContext>();
+  const nli = new LocalNliEngine(config.NLI_MODEL_ID, config.NLI_ALLOW_REMOTE_MODELS, config.NLI_MODEL_REVISION);
+  const findingMemory = new BoundedTtlCache<string, CachedFinding>({ maxEntries: 500, ttlMs: 10 * 60 * 1000 });
+  const pending = new BoundedTtlCache<string, Finding>({ maxEntries: 250, ttlMs: 10 * 60 * 1000 });
+  const stateSweep = setInterval(() => {
+    findingMemory.sweep();
+    pending.sweep();
+  }, 60_000);
+  stateSweep.unref();
 
   app.event('app_home_opened', async ({ event }) => {
     const opened = event as unknown as { tab?: string; channel?: string };
@@ -44,17 +53,25 @@ export function createApp(): App {
     logger.debug({ category: 'context_changed', entityCount: changed.context?.entities?.length ?? 0 }, 'Slack context changed');
   });
 
-  app.event('message', async (args) => {
-    const event = args.event as typeof args.event & { channel_type?: string; text?: string; user?: string; bot_id?: string; thread_ts?: string; ts: string; app_context?: unknown };
+  app.message(async (args) => {
+    const event = args.message as typeof args.message & { action_token?: string; channel_type?: string; text?: string; user?: string; bot_id?: string; thread_ts?: string; ts: string; app_context?: unknown };
+    const eventBody = args.body as typeof args.body & { action_token?: string };
+    const actionToken = event.action_token ?? eventBody.action_token;
+    logger.info({
+      category: 'message_event',
+      channelType: event.channel_type ?? 'missing',
+      subtype: 'subtype' in event && typeof event.subtype === 'string' ? event.subtype : 'none',
+      hasUser: Boolean(event.user),
+      hasActionToken: Boolean(actionToken),
+    }, 'Slack message event received');
     if (event.channel_type !== 'im' || event.bot_id || !event.user || !event.text) return;
     const threadTs = event.thread_ts ?? event.ts;
     const pendingKey = `${event.user}:${event.channel}:${threadTs}`;
-    const saved = pending.get(pendingKey);
-    if (saved && saved.expiresAt > Date.now()) {
-      pending.delete(pendingKey);
-      const rescored = await nli.score(saved.finding.previous.text, `${saved.finding.current.text} Context: ${event.text}`);
-      const updatedCurrent = { ...saved.finding.current, text: `${saved.finding.current.text} Context: ${event.text}` };
-      const updated = classifyPair(updatedCurrent, saved.finding.previous, rescored);
+    const saved = pending.take(pendingKey);
+    if (saved) {
+      const rescored = await nli.score(saved.previous.text, `${saved.current.text} Context: ${event.text}`);
+      const updatedCurrent = { ...saved.current, text: `${saved.current.text} Context: ${event.text}` };
+      const updated = classifyPair(updatedCurrent, saved.previous, rescored);
       await args.client.chat.postMessage({ channel: event.channel, thread_ts: threadTs, text: `${updated.label}: ${updated.explanation}`, blocks: evidenceBlocks([updated]) });
       return;
     }
@@ -69,8 +86,7 @@ export function createApp(): App {
       return;
     }
 
-    const body = args.body as typeof args.body & { action_token?: string };
-    if (!body.action_token) {
+    if (!actionToken) {
       await args.client.chat.postMessage({
         channel: event.channel,
         thread_ts: threadTs,
@@ -79,7 +95,7 @@ export function createApp(): App {
       return;
     }
 
-    await analyzeAndReply(args.client, nli, claim, body.action_token, event.channel, event.ts, threadTs);
+    await analyzeAndReply(args.client, nli, findingMemory, claim, actionToken, event.user, event.channel, event.ts, threadTs);
   });
 
   app.action(/radar_(add_context|resolved|false_positive)/, async ({ ack, action, body, client }) => {
@@ -94,8 +110,12 @@ export function createApp(): App {
 
     if (actionName === 'add_context') {
       const memoryKey = `${userId}:${channelId}:${threadTs}`;
-      const remembered = findingMemory.get(payload.findingId);
-      if (remembered) pending.set(memoryKey, { finding: remembered, expiresAt: Date.now() + 10 * 60 * 1000 });
+      const remembered = findingMemory.take(payload.findingId);
+      if (!remembered || remembered.userId !== userId || remembered.channelId !== channelId || remembered.threadTs !== threadTs) {
+        await client.chat.postMessage({ channel: channelId, thread_ts: threadTs, text: 'This finding expired or is no longer available. Run the check again, then choose Add context on the new result.' });
+        return;
+      }
+      pending.set(memoryKey, remembered.finding);
       await recordFeedback(config.FEEDBACK_PATH, {
         findingId: payload.findingId,
         action: 'context_requested',
@@ -129,9 +149,7 @@ export function createApp(): App {
   return app;
 }
 
-const findingMemory = new Map<string, Finding>();
-
-async function analyzeAndReply(client: WebClient, nli: LocalNliEngine, claim: string, actionToken: string, channelId: string, messageTs: string, threadTs: string): Promise<void> {
+async function analyzeAndReply(client: WebClient, nli: LocalNliEngine, findingMemory: BoundedTtlCache<string, CachedFinding>, claim: string, actionToken: string, userId: string, channelId: string, messageTs: string, threadTs: string): Promise<void> {
   const search = new SlackSearch(client);
   try {
     await client.apiCall('assistant.threads.setStatus', { channel_id: channelId, thread_ts: threadTs, status: 'Checking earlier Slack evidence…' }).catch(() => undefined);
@@ -144,7 +162,7 @@ async function analyzeAndReply(client: WebClient, nli: LocalNliEngine, claim: st
       findings.push(classifyPair(current, previous, scores));
     }
     const ranked = rankFindings(findings.filter((item) => item.label !== 'No contradiction' || item.confidence >= 0.72));
-    for (const item of ranked) findingMemory.set(item.id, item);
+    for (const item of ranked) findingMemory.set(item.id, { finding: item, userId, channelId, threadTs });
     await client.chat.postMessage({
       channel: channelId,
       thread_ts: threadTs,

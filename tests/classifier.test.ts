@@ -42,6 +42,12 @@ describe('conservative classification policy', () => {
     expect(finding.label).toBe('No contradiction');
   });
 
+  it('rejects a high model score when the messages are about different subjects', () => {
+    const finding = classifyPair(evidence('The web client supports keyboard shortcuts.', '2.0'), evidence('The mobile client supports offline drafts.', '1.0'), highContradiction);
+    expect(finding.label).toBe('No contradiction');
+    expect(finding.reasonCodes).toContain('low-topic-overlap');
+  });
+
   it('limits and prioritizes high-value findings', () => {
     const a = classifyPair(evidence('The launch must not happen.', '2.0'), evidence('The launch must happen.', '1.0'), highContradiction);
     const b = classifyPair(evidence('Development disables SSO.', '4.0'), evidence('Production enables SSO.', '3.0'), highContradiction);
@@ -49,4 +55,3 @@ describe('conservative classification policy', () => {
     expect(rankFindings([c, b, a], 2).map((item) => item.label)).toEqual(['Requirement conflict', 'Scope mismatch']);
   });
 });
-

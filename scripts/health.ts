@@ -11,11 +11,17 @@ const client = new WebClient(config.SLACK_BOT_TOKEN);
 try {
   const auth = await client.auth.test();
   const search = await client.apiCall('assistant.search.info') as unknown as Record<string, unknown>;
+  const teamMatches = auth.team_id === config.SLACK_TEAM_ID;
+  const searchApiAvailable = search.ok === true;
+  const semanticSearchEnabled = search['is_ai_search_enabled'] === true;
+  if (!teamMatches || !searchApiAvailable || !semanticSearchEnabled) {
+    throw new Error('workspace_or_search_invariant_failed');
+  }
   console.log(JSON.stringify({
     status: 'healthy',
-    teamMatches: auth.team_id === config.SLACK_TEAM_ID,
-    searchApiAvailable: search.ok === true,
-    semanticSearchEnabled: search['is_ai_search_enabled'] === true,
+    teamMatches,
+    searchApiAvailable,
+    semanticSearchEnabled,
     checkedAt: new Date().toISOString(),
   }));
 } catch (error) {

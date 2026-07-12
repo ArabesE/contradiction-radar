@@ -13,29 +13,48 @@ export function classifyPair(current: Evidence, previous: Evidence, scores: NliS
   const versionMismatch = disjoint(now.versions, before.versions);
   const timeMismatch = disjoint(now.timeMarkers, before.timeMarkers);
   const scopeMismatch = disjoint(now.scopes, before.scopes);
+  const topicOverlap = lexicalOverlap(current.text, previous.text);
+  const equivalentDuration = now.timeMarkers.includes('~1-month') && before.timeMarkers.includes('~1-month');
+  const incompatibleRequirements = now.isRequirement && before.isRequirement
+    && scores.contradiction >= 0.78
+    && Math.abs(scores.contradiction - scores.entailment) >= 0.35;
+  const structuredRelation = environmentMismatch || versionMismatch || timeMismatch || scopeMismatch
+    || ((now.isSuperseding || before.isSuperseding) && now.timeMarkers.length > 0 && before.timeMarkers.length > 0);
 
-  if (now.isSuperseding || before.isSuperseding) {
+  if (topicOverlap < 0.2 && !structuredRelation) {
+    label = 'No contradiction';
+    explanation = 'The messages do not appear to make claims about the same subject.';
+    reasons.push('low-topic-overlap');
+  } else if (now.isSuperseding || before.isSuperseding) {
     label = 'Superseded decision';
     explanation = 'One message explicitly says an earlier decision was replaced, revised, resolved, or is no longer current.';
     reasons.push('supersession-language');
+  } else if (now.isProposal || before.isProposal) {
+    label = 'Needs clarification';
+    explanation = 'At least one statement is framed as a proposal, preference, option, or draft rather than a final decision.';
+    reasons.push('proposal-versus-decision');
   } else if (environmentMismatch || versionMismatch || scopeMismatch) {
     label = 'Scope mismatch';
     const dimensions = [environmentMismatch && 'environment', versionMismatch && 'version', scopeMismatch && 'audience or scope'].filter(Boolean).join(', ');
     explanation = `The statements differ by ${dimensions}; they may both be valid within their own scope.`;
     reasons.push(environmentMismatch ? 'environment-mismatch' : '', versionMismatch ? 'version-mismatch' : '', scopeMismatch ? 'scope-mismatch' : '');
+  } else if (incompatibleRequirements) {
+    label = 'Requirement conflict';
+    explanation = 'The messages impose incompatible requirements or commitments under the same visible conditions.';
+    reasons.push('high-contradiction-score', 'competing-requirements');
   } else if (timeMismatch) {
     label = 'Time mismatch';
     explanation = 'The statements refer to different time windows, so the apparent conflict may reflect a change over time.';
     reasons.push('time-mismatch');
-  } else if (now.isProposal || before.isProposal) {
-    label = 'Needs clarification';
-    explanation = 'At least one statement is framed as a proposal, preference, option, or draft rather than a final decision.';
-    reasons.push('proposal-versus-decision');
   } else if (scores.entailment >= 0.64 && scores.entailment > scores.contradiction) {
     label = 'No contradiction';
     explanation = 'The earlier message appears consistent with or supportive of the current statement.';
     reasons.push('nli-entailment');
-  } else if (scores.contradiction >= 0.78 && Math.abs(scores.contradiction - scores.entailment) >= 0.35) {
+  } else if (equivalentDuration && now.hasNegation === before.hasNegation) {
+    label = 'No contradiction';
+    explanation = 'The messages express the same approximate duration using different wording.';
+    reasons.push('equivalent-duration');
+  } else if (scores.contradiction >= 0.78 && Math.abs(scores.contradiction - scores.entailment) >= 0.35 && topicOverlap >= 0.2) {
     label = now.isRequirement || before.isRequirement ? 'Requirement conflict' : 'Direct contradiction';
     explanation = label === 'Requirement conflict'
       ? 'The messages impose incompatible requirements or commitments under the same visible conditions.'
@@ -82,6 +101,15 @@ function disjoint(a: string[], b: string[]): boolean {
   return a.length > 0 && b.length > 0 && !a.some((item) => b.includes(item));
 }
 
+function lexicalOverlap(a: string, b: string): number {
+  const stop = new Set(['about', 'after', 'again', 'and', 'before', 'client', 'current', 'does', 'every', 'for', 'from', 'have', 'into', 'must', 'not', 'project', 'service', 'shall', 'should', 'support', 'supports', 'system', 'that', 'the', 'their', 'there', 'these', 'this', 'those', 'with', 'would']);
+  const tokens = (value: string) => new Set((value.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((token) => token.length >= 3 && !stop.has(token)));
+  const left = tokens(a);
+  const right = tokens(b);
+  const shared = [...left].filter((token) => right.has(token)).length;
+  return shared / Math.max(1, Math.min(left.size, right.size));
+}
+
 function calibratedConfidence(label: RadarLabel, scores: NliScores, reasons: string[]): number {
   if (label === 'Scope mismatch' || label === 'Time mismatch' || label === 'Superseded decision') return reasons.length > 0 ? 0.9 : 0.7;
   if (label === 'Direct contradiction' || label === 'Requirement conflict') return round(Math.min(0.97, scores.contradiction));
@@ -98,4 +126,3 @@ function severityFor(label: RadarLabel, confidence: number): Severity {
 function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
-
