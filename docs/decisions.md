@@ -1,8 +1,8 @@
 # Decision log
 
-## 2026-07-12 — Local Socket Mode runtime
+## 2026-07-12 — Socket Mode runtime
 
-Use Bolt for JavaScript with TypeScript and Socket Mode. This avoids paid hosting and a public endpoint while remaining reachable whenever the dedicated Windows host is online.
+Use Bolt for JavaScript with TypeScript and Socket Mode. This avoids a public inbound endpoint and lets the worker move between Windows and Linux without changing the Slack app.
 
 ## 2026-07-12 — Current Agent messaging experience
 
@@ -34,7 +34,11 @@ Run the installed workspace bot and app-level Socket Mode token directly through
 
 ## 2026-07-12 — Durable Windows operation
 
-Use a per-user Task Scheduler logon trigger named `Contradiction Radar`. `scripts/start.ps1` prevents duplicate processes, uses the Node 24 runtime, redirects body-free logs to ignored local storage, and records a PID. `npm run restart` rebuilds and replaces the process; `npm run health` checks team identity and search capability.
+Retain a per-user Task Scheduler logon trigger named `Contradiction Radar` as an emergency fallback. `scripts/start.ps1` prevents duplicate processes, uses the Node 24 runtime, redirects body-free logs to ignored local storage, and records a PID. Disable this task after the cloud worker passes an exclusive end-to-end Slack test.
+
+## 2026-07-12 — Free judging-period cloud availability
+
+Run the production judging worker on one Google Cloud `e2-micro` Linux VM covered by the 90-day Free Trial/Free Tier. Use a 30 GB standard disk, no GPU, no Google service account, no inbound application port, a restricted SSH rule, `systemd` restart, and a five-minute Slack health watchdog. Keep inference self-hosted on the VM; no Slack content is sent to a managed model API. The Windows worker is stopped after a cloud-only RTS and ONNX result is verified.
 
 ## 2026-07-12 — Honest evaluation claim
 

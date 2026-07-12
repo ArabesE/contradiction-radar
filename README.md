@@ -16,7 +16,7 @@ The agent deliberately prefers precision over recall. It distinguishes direct co
 
 1. DM the agent: `Check this claim: Project Atlas must launch on September 15.`
 2. Slack's Real-time Search API returns only evidence available in the triggering user's context.
-3. A local quantized NLI model scores each pair; deterministic policy checks scope, time, version, environment, proposal status, and supersession.
+3. A self-hosted quantized NLI model scores each pair; deterministic policy checks scope, time, version, environment, proposal status, and supersession.
 4. The agent returns up to three Block Kit evidence cards with Slack permalinks.
 5. **Add context**, **Mark resolved**, or **False positive** keeps the user in control. Added context triggers a fresh classification.
 
@@ -25,7 +25,7 @@ The agent deliberately prefers precision over recall. It distinguishes direct co
 - Current Slack `agent_view` messaging experience with suggested prompts and threaded replies.
 - Bolt for JavaScript over Socket Mode; no public inbound endpoint.
 - User-triggered `assistant.search.context` calls include the event `action_token`.
-- Local `Xenova/nli-deberta-v3-xsmall` ONNX inference via Transformers.js; no message content is sent to a remote model API.
+- Self-hosted `Xenova/nli-deberta-v3-xsmall` ONNX inference via Transformers.js; no message content is sent to a remote model API.
 - Raw Slack message bodies are never persisted. Findings selected for the interactive **Add context** flow stay only in a bounded, single-use in-memory cache for at most ten minutes.
 - Logs are body-free. Feedback stores identifiers, labels, reason codes, and timestamps only.
 - Slack permalinks preserve Slack's access boundary instead of copying findings into channels.
@@ -34,7 +34,7 @@ See [architecture](docs/architecture.md) and [security/privacy](docs/security-pr
 
 ## Requirements
 
-- Windows 10/11 for the included service scripts (the Node service itself is portable)
+- Linux for the production systemd deployment, or Windows 10/11 for the fallback service scripts
 - Node.js 24+
 - npm 11+
 - Slack CLI 4.4.0+
@@ -73,6 +73,8 @@ npm run service:install
 
 Use `npm run restart` after code/config changes. Runtime logs and the PID live under ignored `data/runtime/`.
 
+The judging deployment runs on a private Linux VM with no inbound application port, automatic boot startup, process restart, and a five-minute Slack health watchdog. See [cloud deployment](docs/cloud-deployment.md). The Windows task is retained only as an emergency fallback and is disabled after cloud cutover.
+
 ## Test and evaluation evidence
 
 ```powershell
@@ -105,7 +107,7 @@ The sandbox includes six clearly labeled `[DEMO DATA]` messages that demonstrate
 - `src/domain/` — claim/marker preprocessing and conservative decision policy
 - `src/nli/` — pinned local NLI inference and deterministic fallback
 - `tests/fixtures/evaluation.json` — fixed 28-pair evaluation set
-- `scripts/` — health, evaluation, service, scheduler, and preflight operations
+- `scripts/` — health, evaluation, Linux/Windows service, scheduler, and preflight operations
 - `docs/` — product, architecture, security, judge, demo, and submission artifacts
 
 ## Model and source licenses

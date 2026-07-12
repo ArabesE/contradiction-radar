@@ -7,7 +7,7 @@
         <mxCell id="title" value="Contradiction Radar — permission-aware Slack decision support" style="text;html=1;align=left;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#172B4D;" vertex="1" parent="1">
           <mxGeometry x="60" y="35" width="1200" height="45" as="geometry"/>
         </mxCell>
-        <mxCell id="subtitle" value="User-triggered retrieval • local NLI + deterministic policy • evidence links • body-free persistence" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#5E6C84;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="User-triggered retrieval • self-hosted NLI + deterministic policy • evidence links • body-free persistence" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#5E6C84;" vertex="1" parent="1">
           <mxGeometry x="60" y="78" width="1200" height="30" as="geometry"/>
         </mxCell>
 
@@ -33,7 +33,7 @@
           <mxGeometry x="83" y="530" width="360" height="66" as="geometry"/>
         </mxCell>
 
-        <mxCell id="localBoundary" value="LOCAL WINDOWS HOST — trusted ephemeral processing" style="swimlane;html=1;rounded=1;startSize=36;horizontal=1;fillColor=#F4F5F7;strokeColor=#172B4D;strokeWidth=2;dashed=1;fontColor=#172B4D;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+        <mxCell id="localBoundary" value="PRIVATE LINUX CLOUD VM — trusted ephemeral processing" style="swimlane;html=1;rounded=1;startSize=36;horizontal=1;fillColor=#F4F5F7;strokeColor=#172B4D;strokeWidth=2;dashed=1;fontColor=#172B4D;fontStyle=1;fontSize=15;" vertex="1" parent="1">
           <mxGeometry x="645" y="135" width="900" height="635" as="geometry"/>
         </mxCell>
         <mxCell id="bolt" value="&lt;b&gt;Bolt event adapter&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;Validate payload • extract claim&lt;br&gt;preserve action token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3FCEF;strokeColor=#36B37E;strokeWidth=2;fontSize=15;arcSize=18;spacing=10;" vertex="1" parent="localBoundary">
@@ -45,7 +45,7 @@
         <mxCell id="preprocess" value="&lt;b&gt;Claim + marker extraction&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;topic • negation • requirement&lt;br&gt;scope • version • environment • time&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6554C0;strokeWidth=2;fontSize=15;arcSize=18;spacing=10;" vertex="1" parent="localBoundary">
           <mxGeometry x="620" y="65" width="230" height="100" as="geometry"/>
         </mxCell>
-        <mxCell id="nli" value="&lt;b&gt;Pinned local NLI&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;quantized DeBERTa ONNX&lt;br&gt;contradiction • entailment • neutral&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAE6FF;strokeColor=#6554C0;strokeWidth=2;fontSize=15;arcSize=18;spacing=10;" vertex="1" parent="localBoundary">
+        <mxCell id="nli" value="&lt;b&gt;Pinned self-hosted NLI&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;quantized DeBERTa ONNX&lt;br&gt;contradiction • entailment • neutral&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAE6FF;strokeColor=#6554C0;strokeWidth=2;fontSize=15;arcSize=18;spacing=10;" vertex="1" parent="localBoundary">
           <mxGeometry x="50" y="245" width="220" height="105" as="geometry"/>
         </mxCell>
         <mxCell id="policy" value="&lt;b&gt;Conservative policy&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;scope/time override • proposal guard&lt;br&gt;supersession • topical gate • ranking&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7D6;strokeColor=#FFAB00;strokeWidth=2;fontSize=15;arcSize=18;spacing=10;" vertex="1" parent="localBoundary">
@@ -57,7 +57,7 @@
         <mxCell id="feedback" value="&lt;b&gt;Body-free feedback.jsonl&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;IDs • label • reason codes • timestamp&lt;br&gt;no raw Slack message text&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#E3FCEF;strokeColor=#36B37E;strokeWidth=2;fontSize=15;spacing=10;" vertex="1" parent="localBoundary">
           <mxGeometry x="335" y="440" width="230" height="105" as="geometry"/>
         </mxCell>
-        <mxCell id="logs" value="&lt;b&gt;Body-free operations&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;health • PID • error categories&lt;br&gt;Windows logon task&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#FFFFFF;strokeColor=#5E6C84;strokeWidth=2;fontSize=15;spacing=10;" vertex="1" parent="localBoundary">
+        <mxCell id="logs" value="&lt;b&gt;Body-free operations&lt;/b&gt;&lt;br&gt;&lt;font color='#5E6C84'&gt;health • systemd • error categories&lt;br&gt;five-minute watchdog&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#FFFFFF;strokeColor=#5E6C84;strokeWidth=2;fontSize=15;spacing=10;" vertex="1" parent="localBoundary">
           <mxGeometry x="620" y="440" width="230" height="105" as="geometry"/>
         </mxCell>
         <mxCell id="noRemote" value="No remote LLM API • no public HTTP endpoint • Slack content is untrusted evidence, never executable instruction" style="note;whiteSpace=wrap;html=1;fillColor=#FFEBE6;strokeColor=#FF5630;fontColor=#BF2600;fontStyle=1;fontSize=13;spacing=8;" vertex="1" parent="localBoundary">
@@ -80,7 +80,7 @@
         <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#5E6C84;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="localBoundary" source="renderer" target="logs"><mxGeometry relative="1" as="geometry"/></mxCell>
 
         <mxCell id="legend1" value="Remote / Slack-managed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F5FA;strokeColor=#611F69;fontSize=12;" vertex="1" parent="1"><mxGeometry x="60" y="805" width="160" height="34" as="geometry"/></mxCell>
-        <mxCell id="legend2" value="Local ephemeral processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F4F5F7;strokeColor=#172B4D;dashed=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="235" y="805" width="180" height="34" as="geometry"/></mxCell>
+        <mxCell id="legend2" value="Private VM processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F4F5F7;strokeColor=#172B4D;dashed=1;fontSize=12;" vertex="1" parent="1"><mxGeometry x="235" y="805" width="180" height="34" as="geometry"/></mxCell>
         <mxCell id="legend3" value="Persistent but body-free" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#E3FCEF;strokeColor=#36B37E;fontSize=12;" vertex="1" parent="1"><mxGeometry x="430" y="800" width="180" height="44" as="geometry"/></mxCell>
         <mxCell id="footer" value="Editable source: docs/architecture.drawio • Exports: SVG + 2× PNG" style="text;html=1;align=right;verticalAlign=middle;fontSize=12;fontColor=#5E6C84;" vertex="1" parent="1"><mxGeometry x="1050" y="805" width="485" height="34" as="geometry"/></mxCell>
       </root>

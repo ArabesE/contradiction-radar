@@ -12,7 +12,10 @@
 - [x] Atlas requirement-conflict and supersession flow verified
 - [x] SSO Add-context → scope-mismatch flow verified
 - [x] Feedback acknowledgement and body-free record verified
-- [x] Per-user Windows logon task installed
+- [x] Cloud-only Slack RTS and ONNX response verified after stopping the Windows worker
+- [x] Linux service starts at boot and restarts after failure
+- [x] Five-minute Slack health watchdog active
+- [x] Windows logon task retained but disabled as emergency fallback
 
 ## Quality and security
 

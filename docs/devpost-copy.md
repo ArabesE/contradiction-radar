@@ -38,7 +38,7 @@ Contradiction Radar uses the current Slack `agent_view` Messages experience, Bol
 
 Search candidates are normalized and de-duplicated, then scored locally with a quantized `nli-deberta-v3-xsmall` ONNX model through Transformers.js. A deterministic policy layer checks negation, requirement language, topic overlap, environment, version, customer scope, time markers, proposal status, and explicit supersession. NLI is advisory: visible scope or time differences can override an apparent contradiction.
 
-Results are rendered as threaded Block Kit evidence cards. The Windows host runs the Socket Mode service through an automatic per-user logon task, with one-command health, restart, test, evaluation, and preflight scripts.
+Results are rendered as threaded Block Kit evidence cards. A free-tier Linux VM runs the Socket Mode worker with automatic boot startup, process recovery, and a five-minute Slack health watchdog. The VM exposes no application port, and the quantized model remains self-hosted inside the same private runtime boundary.
 
 ## Challenges we ran into
 
@@ -56,7 +56,7 @@ Finally, we treated privacy as architecture instead of copy: no remote model inf
 - Local quantized NLI with a pinned model revision and deterministic failure fallback
 - 28/28 automated tests and 28/28 exact labels on the declared fixed regression fixture
 - Body-free operational logs and feedback, verified in the live sandbox
-- A reproducible judge path, editable diagrams.net architecture, and one-command Windows operations
+- A reproducible judge path, editable diagrams.net architecture, and resilient Linux operations with a disabled Windows fallback
 
 ## What we learned
 
@@ -68,7 +68,7 @@ Next we would add user-controlled channel/time filters, richer authority/status 
 
 ## Built with
 
-Slack Agent View, Slack Real-time Search API, Slack Bolt for JavaScript, Socket Mode, Block Kit, TypeScript, Node.js, Transformers.js, ONNX Runtime, DeBERTa NLI, Vitest, diagrams.net, PowerShell
+Slack Agent View, Slack Real-time Search API, Slack Bolt for JavaScript, Socket Mode, Block Kit, TypeScript, Node.js, Transformers.js, ONNX Runtime, DeBERTa NLI, Google Compute Engine, systemd, Vitest, diagrams.net, PowerShell
 
 ## Links
 

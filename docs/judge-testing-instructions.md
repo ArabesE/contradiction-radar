@@ -40,13 +40,16 @@ The agent deliberately accepts only bot-authored search results with the `[DEMO 
 - No raw message bodies are retained in logs or feedback.
 - No remote LLM receives workspace content.
 
-## If the local host was restarted
+## Service availability
 
-The Windows logon task should start the agent automatically. If needed, the operator can run:
+Judges do not need to deploy anything or connect to the application host. The submitted Slack sandbox routes events over Socket Mode to the continuously running cloud worker. It starts automatically at VM boot and a five-minute watchdog restarts it after a failed health check.
 
-```powershell
-npm run restart
-npm run health
+For operator verification:
+
+```bash
+systemctl is-active contradiction-radar.service
+systemctl is-active contradiction-radar-watchdog.timer
+sudo -u contradiction-radar bash -lc 'cd /opt/contradiction-radar && /usr/local/bin/node dist/scripts/health.js'
 ```
 
 Healthy output reports `status: healthy`, `teamMatches: true`, `searchApiAvailable: true`, and `semanticSearchEnabled: true`.
