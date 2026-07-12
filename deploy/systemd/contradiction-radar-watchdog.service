@@ -1,0 +1,8 @@
+[Unit]
+Description=Check Contradiction Radar and restart it if Slack health fails
+After=network-online.target contradiction-radar.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/contradiction-radar
+ExecStart=/usr/local/sbin/contradiction-radar-watchdog

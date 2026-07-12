@@ -1,0 +1,28 @@
+[Unit]
+Description=Contradiction Radar Slack Socket Mode agent
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=contradiction-radar
+Group=contradiction-radar
+WorkingDirectory=/opt/contradiction-radar
+Environment=NODE_ENV=production
+Environment=HOME=/opt/contradiction-radar
+ExecStart=/usr/local/bin/node --enable-source-maps /opt/contradiction-radar/dist/src/index.js
+Restart=always
+RestartSec=10
+TimeoutStopSec=20
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/opt/contradiction-radar/data /opt/contradiction-radar/.cache
+
+[Install]
+WantedBy=multi-user.target
