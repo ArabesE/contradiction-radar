@@ -24,7 +24,7 @@
 - [x] Gitleaks reviewable working-tree and full-history scans clean
 - [x] Repository security review closed all 33/33 worklist rows; two Low findings fixed with regression tests (sealed re-scan intentionally skipped for deadline)
 - [x] Git history inspected for secrets or generated artifacts
-- [ ] Repository made public only after all audits pass
+- [x] Repository made public only after all audits pass
 
 ## Submission assets
 
@@ -42,13 +42,13 @@
 
 ## Devpost
 
-- [ ] Track set to **New Slack Agent**
-- [ ] Team lists Huilong Bian and Wei Jiang
-- [ ] Repository URL entered
-- [ ] Slack sandbox/app URL entered
-- [ ] Architecture diagram uploaded
-- [ ] Story fields completed
-- [ ] Technologies entered
-- [ ] Draft saved and reviewed
+- [x] Track set to **New Slack Agent**
+- [x] Team lists Huilong Bian and Wei Jiang
+- [x] Repository URL entered
+- [x] Slack sandbox/app URL entered
+- [x] Architecture diagram uploaded
+- [x] Story fields completed
+- [x] Technologies entered
+- [x] Draft saved and reviewed
 - [ ] **HUMAN ONLY:** final video URL reviewed
 - [ ] **HUMAN ONLY:** final Submit button clicked before 2026-07-13 20:00 EDT
