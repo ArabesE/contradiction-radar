@@ -1,11 +1,13 @@
 import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { classifyPair } from '../src/domain/classifier.js';
 import { LocalNliEngine } from '../src/nli/model.js';
 import type { Evidence, RadarLabel } from '../src/types.js';
 
 interface Fixture { id: string; category: string; previous: string; current: string; expected: RadarLabel }
 
-const fixtures = JSON.parse(await readFile(new URL('../tests/fixtures/evaluation.json', import.meta.url), 'utf8')) as Fixture[];
+const fixturePath = resolve(process.cwd(), 'tests/fixtures/evaluation.json');
+const fixtures = JSON.parse(await readFile(fixturePath, 'utf8')) as Fixture[];
 const engine = new LocalNliEngine();
 const rows: Array<{ id: string; expected: RadarLabel; predicted: RadarLabel; correct: boolean; source: string }> = [];
 for (const [index, fixture] of fixtures.entries()) {
@@ -28,4 +30,3 @@ console.log(JSON.stringify({
   fallbackCount: rows.filter((row) => row.source === 'deterministic-fallback').length,
   errors: rows.filter((row) => !row.correct),
 }, null, 2));
-
