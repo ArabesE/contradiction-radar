@@ -1,14 +1,14 @@
 # Contradiction Radar
 
-Contradiction Radar is a permission-aware Slack agent that checks a current requirement or decision against earlier workspace evidence, explains likely conflicts conservatively, and keeps the human in control.
+**Catch decision drift before it ships.** Contradiction Radar checks a current requirement or decision against earlier Slack evidence, explains likely conflicts conservatively, and shows its receipts.
 
 It is built for the **New Slack Agent** track of the 2026 Slack Agent Builder Challenge.
 
-![Contradiction Radar architecture](docs/architecture.svg)
+![Contradiction Radar — catch decision drift before it ships](docs/thumbnail.png)
 
 ## Why it exists
 
-Teams rarely lose decisions because nobody wrote them down. They lose them because a later message quietly conflicts with an earlier requirement, deadline, environment, version, or customer scope. Keyword search finds similar words; Contradiction Radar looks for incompatible claims and shows the exact Slack evidence behind its reasoning.
+Work rarely breaks because nobody documented a decision. It breaks because the decision changed three weeks later—and the old version still sounds just as confident in Slack. Keyword search finds similar words; Contradiction Radar looks for incompatible claims and links back to the exact evidence behind its reasoning.
 
 The agent deliberately prefers precision over recall. It distinguishes direct contradictions, requirement conflicts, superseded decisions, scope mismatches, time mismatches, and proposals that still need clarification. Results are decision support—not a verdict.
 
@@ -21,6 +21,8 @@ The agent deliberately prefers precision over recall. It distinguishes direct co
 5. **Add context**, **Mark resolved**, or **False positive** keeps the user in control. Added context triggers a fresh classification.
 
 ## Architecture and privacy
+
+![Contradiction Radar architecture](docs/architecture.svg)
 
 - Current Slack `agent_view` messaging experience with suggested prompts and threaded replies.
 - Bolt for JavaScript over Socket Mode; no public inbound endpoint.

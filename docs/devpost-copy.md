@@ -6,7 +6,7 @@ Contradiction Radar
 
 ## Tagline
 
-Permission-aware Slack decision support that finds conflicting requirements and explains the evidence.
+Catch decision drift in Slack before yesterday's answer becomes today's mistake—with permission-aware search, private reasoning, and evidence you can open.
 
 ## Track
 
@@ -14,13 +14,15 @@ New Slack Agent
 
 ## Inspiration
 
-The most expensive contradictions at work rarely look dramatic. A launch date changes in one channel, a security constraint appears in another, and a month later someone confidently repeats the old decision. Slack search can find related words, but teams still need help deciding whether two messages are actually incompatible—or merely refer to different environments, versions, customers, or time windows.
+Work rarely breaks because nobody documented a decision. It breaks because the decision changed three weeks later—and the old version still sounds just as confident in Slack.
 
-We built Contradiction Radar to surface that decision drift without pretending a model is the final authority.
+A launch date moves in one channel. A security constraint appears in another. A month later, someone repeats the old answer and has no reason to suspect it is stale. Search can recover both messages, but it cannot tell the team whether they truly conflict or simply describe different environments, versions, customers, or time windows.
+
+We built Contradiction Radar to catch that decision drift while there is still time to act, without pretending a model gets the final word.
 
 ## What it does
 
-In a direct message, a user asks Contradiction Radar to check a current claim or the message they are viewing. The agent uses Slack's permission-aware Real-time Search API to retrieve earlier workspace evidence, then returns up to three explainable findings:
+Contradiction Radar is the teammate who remembers what the team decided—and shows its receipts. In a direct message, a user asks it to check a current claim or the message they are viewing. The agent uses Slack's permission-aware Real-time Search API to retrieve earlier workspace evidence, then returns up to three explainable findings:
 
 - Direct contradiction
 - Requirement conflict
@@ -34,7 +36,9 @@ Each finding includes cautious language, confidence/severity, and Slack permalin
 
 ## How we built it
 
-Contradiction Radar uses the current Slack `agent_view` Messages experience, Bolt for JavaScript, TypeScript, Block Kit, and Socket Mode. A user DM provides the short-lived `action_token` required for bot-token calls to `assistant.search.context`; this keeps retrieval tied to a user-initiated action and Slack's access boundary.
+We deliberately split the problem in two: Slack decides what evidence the user is allowed to see; our self-hosted classifier decides whether that evidence actually conflicts.
+
+Contradiction Radar uses the current Slack `agent_view` Messages experience, Bolt for JavaScript, TypeScript, Block Kit, and Socket Mode. A user DM provides the short-lived `action_token` required for bot-token calls to `assistant.search.context`, keeping retrieval tied to a user-initiated action and Slack's access boundary.
 
 Search candidates are normalized and de-duplicated, then scored locally with a quantized `nli-deberta-v3-xsmall` ONNX model through Transformers.js. A deterministic policy layer checks negation, requirement language, topic overlap, environment, version, customer scope, time markers, proposal status, and explicit supersession. NLI is advisory: visible scope or time differences can override an apparent contradiction.
 
@@ -42,9 +46,9 @@ Results are rendered as threaded Block Kit evidence cards. A free-tier Linux VM 
 
 ## Challenges we ran into
 
-The newest Slack Agent Messages experience landed just before the challenge deadline, so we migrated to `agent_view`, Slack CLI 4.4.0, and the required current Web API SDK. We also discovered that Real-time Search requires the `action_token` from the message event itself and a workspace-granted bot installation; validating those boundaries end to end was more important than simply getting a search result.
+The newest Slack Agent Messages experience landed just before the challenge deadline, so we migrated to `agent_view`, Slack CLI 4.4.0, and the current Web API SDK. We also discovered that Real-time Search needs the `action_token` from the message event itself plus a workspace-granted bot installation. Getting a search result was the easy part; proving that it respected the right user boundary took longer.
 
-Classification had a second subtle problem: plausible retrieval is not the same as contradiction. Adjacent search context can be relevant to the conversation but unrelated to the exact claim. We added topical gating plus explicit structured relations, then wrote regression cases for dates, environments, versions, proposals, and supersession.
+The hardest classification bug was not model accuracy. It was relevance. Adjacent search context can sound useful while saying nothing about the exact claim. We added topical gating plus explicit structured relations, then wrote regression cases for dates, environments, versions, proposals, and supersession.
 
 Finally, we treated privacy as architecture instead of copy: no remote model inference, no raw Slack bodies in logs or feedback, DM-only findings, minimal scopes, bounded short-lived interactive state, and source permalinks rather than public reposting.
 
@@ -56,15 +60,17 @@ Finally, we treated privacy as architecture instead of copy: no remote model inf
 - Local quantized NLI with a pinned model revision and deterministic failure fallback
 - 28/28 automated tests and 28/28 exact labels on the declared fixed regression fixture
 - Body-free operational logs and feedback, verified in the live sandbox
-- A reproducible judge path, editable diagrams.net architecture, and resilient Linux operations with a disabled Windows fallback
+- A reproducible judge path, editable diagrams.net architecture, and a resilient free-tier Linux deployment that survives reboots without depending on a laptop
 
 ## What we learned
 
-Trustworthy contradiction detection is mostly about knowing when *not* to call something a contradiction. The best result is often “these statements differ by version,” “this was only a proposal,” or “the later decision superseded the earlier one.” Slack's action-scoped search and evidence permalinks make that restraint visible and testable.
+We started by trying to detect contradictions. We ended up building a system for refusing to overclaim.
+
+Trustworthy contradiction detection is mostly about knowing when *not* to call something a contradiction. The best answer is often “these statements differ by version,” “this was only a proposal,” or “the later decision superseded the earlier one.” Slack's action-scoped search and evidence permalinks make that restraint visible and testable.
 
 ## What's next
 
-Next we would add user-controlled channel/time filters, richer authority/status markers, duplicate-event persistence, and a workspace-specific evaluation workflow where teams can contribute reviewed examples without retaining raw message bodies. A future hosted deployment would preserve the same permission boundary and offer customer-managed model storage.
+Next we would add user-controlled channel/time filters, richer authority/status markers, duplicate-event persistence, and a workspace-specific evaluation workflow where teams can contribute reviewed examples without retaining raw message bodies. A managed version would preserve the same permission boundary and offer customer-controlled model storage.
 
 ## Built with
 
