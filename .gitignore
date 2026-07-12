@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+.slack/apps.*.json
+.slack/credentials.json
+data/feedback.jsonl
+data/runtime/
+models/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+artifacts/private/
+

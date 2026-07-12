@@ -1,0 +1,63 @@
+{
+  "_metadata": {
+    "major_version": 2,
+    "minor_version": 1
+  },
+  "display_information": {
+    "name": "Contradiction Radar",
+    "description": "Checks current Slack claims against earlier evidence and flags likely conflicts conservatively.",
+    "background_color": "#243447"
+  },
+  "features": {
+    "agent_view": {
+      "agent_description": "Find likely conflicts in requirements and decisions, explain the evidence, and keep you in control.",
+      "suggested_prompts": [
+        {
+          "title": "Check current message",
+          "message": "Check the message I am viewing for contradictions."
+        },
+        {
+          "title": "Check a claim",
+          "message": "Check this claim: "
+        }
+      ]
+    },
+    "app_home": {
+      "home_tab_enabled": false,
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
+    },
+    "bot_user": {
+      "display_name": "Contradiction Radar",
+      "always_online": true
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "assistant:write",
+        "channels:history",
+        "chat:write",
+        "chat:write.customize",
+        "im:history",
+        "search:read.public"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": [
+        "app_context_changed",
+        "app_home_opened",
+        "message.im"
+      ]
+    },
+    "interactivity": {
+      "is_enabled": true
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}
+

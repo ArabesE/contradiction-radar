@@ -1,0 +1,52 @@
+{
+  "name": "contradiction-radar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Permission-aware Slack agent for conservative contradiction detection.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node --enable-source-maps dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "health": "tsx scripts/health.ts",
+    "restart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/restart.ps1",
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "evaluate": "tsx scripts/evaluate.ts",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "audit:secrets": "gitleaks detect --no-banner --redact --source .",
+    "audit:licenses": "license-checker-rseidelsohn --production --summary"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.7.2",
+    "@slack/bolt": "^4.4.0",
+    "@slack/web-api": "^7.18.0",
+    "dotenv": "^17.2.3",
+    "pino": "^9.9.5",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^4.0.14",
+    "eslint": "^9.39.1",
+    "license-checker-rseidelsohn": "^4.4.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^4.0.14"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "onnxruntime-node@1.21.0": true,
+    "protobufjs@7.6.5": true,
+    "sharp@0.34.5": true
+  }
+}
