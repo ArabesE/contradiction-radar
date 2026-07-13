@@ -72,7 +72,13 @@ export function createApp(): App {
       const rescored = await nli.score(saved.previous.text, `${saved.current.text} Context: ${event.text}`);
       const updatedCurrent = { ...saved.current, text: `${saved.current.text} Context: ${event.text}` };
       const updated = classifyPair(updatedCurrent, saved.previous, rescored);
-      await args.client.chat.postMessage({ channel: event.channel, thread_ts: threadTs, text: `${updated.label}: ${updated.explanation}`, blocks: evidenceBlocks([updated]) });
+      const visible = updated.label === 'No contradiction' ? [] : [updated];
+      await args.client.chat.postMessage({
+        channel: event.channel,
+        thread_ts: threadTs,
+        text: visible.length ? `${updated.label}: ${updated.explanation}` : 'No likely conflict found with the added context.',
+        blocks: evidenceBlocks(visible),
+      });
       return;
     }
 
@@ -161,12 +167,12 @@ async function analyzeAndReply(client: WebClient, nli: LocalNliEngine, findingMe
       const scores = await nli.score(previous.text, current.text);
       findings.push(classifyPair(current, previous, scores));
     }
-    const ranked = rankFindings(findings.filter((item) => item.label !== 'No contradiction' || item.confidence >= 0.72));
+    const ranked = rankFindings(findings.filter((item) => item.label !== 'No contradiction'));
     for (const item of ranked) findingMemory.set(item.id, { finding: item, userId, channelId, threadTs });
     await client.chat.postMessage({
       channel: channelId,
       thread_ts: threadTs,
-      text: ranked.length ? `Found ${ranked.length} relevant finding${ranked.length === 1 ? '' : 's'}.` : 'No high-value contradiction evidence found.',
+      text: ranked.length ? `Found ${ranked.length} relevant finding${ranked.length === 1 ? '' : 's'}.` : 'No likely conflict found.',
       blocks: evidenceBlocks(ranked),
     });
   } catch (error) {

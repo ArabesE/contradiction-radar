@@ -2,21 +2,13 @@ import type { KnownBlock } from '@slack/types';
 import type { Finding } from '../types.js';
 
 export function evidenceBlocks(findings: Finding[]): KnownBlock[] {
-  const blocks: KnownBlock[] = [
-    {
-      type: 'header',
-      text: { type: 'plain_text', text: 'Contradiction Radar', emoji: true },
-    },
-    {
-      type: 'context',
-      elements: [{ type: 'mrkdwn', text: 'Decision support, not a verdict. Results are limited to evidence Slack returned for this user-triggered check.' }],
-    },
-  ];
-  if (findings.length === 0) {
-    blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '*No high-value earlier evidence found.* Try adding a project, version, environment, customer group, or time window.' } });
+  const visibleFindings = findings.filter((finding) => finding.label !== 'No contradiction');
+  const blocks: KnownBlock[] = [];
+  if (visibleFindings.length === 0) {
+    blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '*No likely conflict found.* Try adding a project, version, environment, customer group, or time window.' } });
     return blocks;
   }
-  findings.forEach((finding, index) => {
+  visibleFindings.forEach((finding, index) => {
     const payload = Buffer.from(JSON.stringify({
       findingId: finding.id,
       previousMessageTs: finding.previous.messageTs,
@@ -56,4 +48,3 @@ export function evidenceBlocks(findings: Finding[]): KnownBlock[] {
 function escape(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-
