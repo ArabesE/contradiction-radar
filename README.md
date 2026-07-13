@@ -17,7 +17,7 @@ The agent deliberately prefers precision over recall. It distinguishes direct co
 1. DM the agent: `Check this claim: Project Atlas must launch on September 15.`
 2. Slack's Real-time Search API returns only evidence available in the triggering user's context.
 3. A self-hosted quantized NLI model scores each pair; deterministic policy checks scope, time, version, environment, proposal status, and supersession.
-4. The agent returns up to three Block Kit evidence cards with Slack permalinks.
+4. The agent returns up to three Block Kit evidence cards with Slack permalinks. Non-conflicting candidates are omitted; if nothing likely conflicts, the reply stays to one short sentence.
 5. **Add context**, **Mark resolved**, or **False positive** keeps the user in control. Added context triggers a fresh classification.
 
 ## Architecture and privacy
@@ -42,7 +42,7 @@ See [architecture](docs/architecture.md) and [security/privacy](docs/security-pr
 - Slack CLI 4.4.0+
 - A Slack developer sandbox with AI search enabled
 
-## Set up
+## Set up your own installation
 
 ```powershell
 git clone https://github.com/ArabesE/contradiction-radar.git
@@ -67,15 +67,15 @@ npm run service:start
 npm run health
 ```
 
-For automatic startup at Windows logon:
+For a Windows-hosted installation, automatic startup at logon is available as a fallback deployment option:
 
 ```powershell
 npm run service:install
 ```
 
-Use `npm run restart` after code/config changes. Runtime logs and the PID live under ignored `data/runtime/`.
+Use `npm run restart` only when Windows is the intended active worker. Runtime logs and the PID live under ignored `data/runtime/`. Do not start the Windows worker against the judging workspace while the cloud worker is active, or Slack may deliver events to two Socket Mode connections.
 
-The judging deployment runs on a private Linux VM with no inbound application port, automatic boot startup, process restart, and a five-minute Slack health watchdog. See [cloud deployment](docs/cloud-deployment.md). The Windows task is retained only as an emergency fallback and is disabled after cloud cutover.
+The active judging deployment runs on a private Linux VM with no inbound application port, automatic boot startup, process restart, and a five-minute Slack health watchdog. See [cloud deployment](docs/cloud-deployment.md). Cloud cutover is complete; the Windows task is disabled and retained only for emergency rollback.
 
 ## Test and evaluation evidence
 
@@ -85,9 +85,9 @@ npm run evaluate
 npm run preflight
 ```
 
-Current results on the fixed, hand-authored 28-pair fixture:
+Current validation results:
 
-- 28/28 automated tests passing
+- 30/30 automated tests passing
 - 28/28 exact classification labels
 - 100% precision among pairs predicted as direct/requirement conflicts
 - 0 deterministic fallback cases
@@ -107,7 +107,7 @@ The sandbox includes six clearly labeled `[DEMO DATA]` messages that demonstrate
 
 - `src/slack/` — permission-aware retrieval, Block Kit, body-free feedback
 - `src/domain/` — claim/marker preprocessing and conservative decision policy
-- `src/nli/` — pinned local NLI inference and deterministic fallback
+- `src/nli/` — pinned self-hosted NLI inference and deterministic fallback
 - `tests/fixtures/evaluation.json` — fixed 28-pair evaluation set
 - `scripts/` — health, evaluation, Linux/Windows service, scheduler, and preflight operations
 - `docs/` — product, architecture, security, judge, demo, and submission artifacts

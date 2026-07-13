@@ -12,7 +12,7 @@ Use manifest `features.agent_view`, not `assistant_view`. Handle `app_home_opene
 
 Use `assistant.search.info` once per runtime/team cache window and `assistant.search.context` in response to a user action. The bot token call always includes the Slack event `action_token`. Do not use legacy `search.messages`.
 
-## 2026-07-12 — Local inference baseline
+## 2026-07-12 — Self-hosted inference baseline
 
 Use `Xenova/nli-deberta-v3-xsmall` through `@huggingface/transformers` as quantized ONNX, pinned at repository revision `2a4f614a701367a02d51389039afc998faeda637`. The source model `cross-encoder/nli-deberta-v3-xsmall` declares Apache-2.0. Validate the explicit contradiction/entailment/neutral mapping against the repository evaluation set. Preserve the deterministic fallback if initialization fails.
 
@@ -22,11 +22,11 @@ NLI is advisory. Explicit version/environment/time/scope differences override a 
 
 ## 2026-07-12 — Minimal retention
 
-Do not store Slack message bodies. Persist feedback identifiers and reason codes only. Local logs contain timestamps, event IDs, latency, result counts, and error categories.
+Do not store Slack message bodies. Persist feedback identifiers and reason codes only. Private-worker logs contain timestamps, event IDs, latency, result counts, and error categories.
 
 ## 2026-07-12 — Challenge requirements
 
-Official Devpost rules require a newly created eligible agent, English submission, public video under three minutes, architecture diagram, sandbox URL, and judge access. The deadline is 2026-07-13 17:00 PDT (20:00 EDT). Repository remains private until final audits pass.
+Official Devpost rules require a newly created eligible agent, English submission, public video under three minutes, architecture diagram, sandbox URL, and judge access. The deadline is 2026-07-13 17:00 PDT (20:00 EDT). The repository was kept private through the final audits and is now public for judging.
 
 ## 2026-07-12 — Workspace-granted direct runtime
 
@@ -34,11 +34,11 @@ Run the installed workspace bot and app-level Socket Mode token directly through
 
 ## 2026-07-12 — Durable Windows operation
 
-Retain a per-user Task Scheduler logon trigger named `Contradiction Radar` as an emergency fallback. `scripts/start.ps1` prevents duplicate processes, uses the Node 24 runtime, redirects body-free logs to ignored local storage, and records a PID. Disable this task after the cloud worker passes an exclusive end-to-end Slack test.
+Retain a per-user Task Scheduler logon trigger named `Contradiction Radar` as an emergency fallback. `scripts/start.ps1` prevents duplicate processes, uses the Node 24 runtime, redirects body-free logs to ignored local storage, and records a PID. The cloud-only end-to-end test passed, so this task is now disabled.
 
 ## 2026-07-12 — Free judging-period cloud availability
 
-Run the production judging worker on one Google Cloud `e2-micro` Linux VM covered by the 90-day Free Trial/Free Tier. Use a 30 GB standard disk, no GPU, no Google service account, no inbound application port, a restricted SSH rule, `systemd` restart, and a five-minute Slack health watchdog. Keep inference self-hosted on the VM; no Slack content is sent to a managed model API. The Windows worker is stopped after a cloud-only RTS and ONNX result is verified.
+Run the production judging worker on one Google Cloud `e2-micro` Linux VM covered by the 90-day Free Trial/Free Tier. Use a 30 GB standard disk, no GPU, no Google service account, no inbound application port, a restricted SSH rule, `systemd` restart, and a five-minute Slack health watchdog. Keep inference self-hosted on the VM; no Slack content is sent to a managed model API. Cloud-only RTS and ONNX results are verified, and the Windows worker is stopped.
 
 ## 2026-07-12 — Honest evaluation claim
 

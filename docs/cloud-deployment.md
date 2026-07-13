@@ -1,6 +1,8 @@
-# Free judging-period cloud deployment
+# Current free judging-period cloud deployment
 
-Contradiction Radar can run on a small Linux VM while preserving the same Slack permission boundary and local-model architecture. The VM needs outbound HTTPS and WebSocket access only; Socket Mode does not require an inbound application port.
+Contradiction Radar runs on a small Linux VM while preserving the same Slack permission boundary and self-hosted-model architecture. The VM needs outbound HTTPS and WebSocket access only; Socket Mode does not require an inbound application port.
+
+The judging workspace is currently served by this cloud worker. The Windows logon worker is stopped and disabled so only one production Socket Mode connection handles events.
 
 ## Selected profile
 
@@ -31,13 +33,16 @@ The VM must have outbound internet access to Slack and Hugging Face. SSH is the 
    sudo rm -f /tmp/contradiction-radar.env
    ```
 
-4. Verify without exposing credentials:
+4. Verify without exposing credentials. Use the installed watchdog unit so the check runs with the same protected runtime configuration as production:
 
    ```bash
-   sudo -u contradiction-radar bash -lc 'cd /opt/contradiction-radar && /usr/local/bin/node dist/scripts/health.js'
    systemctl is-active contradiction-radar.service
    systemctl is-active contradiction-radar-watchdog.timer
+   sudo systemctl start contradiction-radar-watchdog.service
+   systemctl show contradiction-radar-watchdog.service -p Result -p ExecMainStatus
    ```
+
+   Healthy output is `active` for the service and timer, with `Result=success` and `ExecMainStatus=0` for the watchdog. Avoid invoking the compiled health script from an unrelated shell that has not loaded the protected runtime environment.
 
 5. Send the declared Slack demo prompts and verify the evidence links and feedback controls before disabling the Windows fallback.
 
@@ -45,6 +50,6 @@ The installer stores the secret environment file as `/etc/contradiction-radar.en
 
 ## Cutover and rollback
 
-Slack supports multiple Socket Mode connections, so the cloud service can be validated while the Windows process is still online. After cloud validation, stop the Windows process and disable its logon task to keep a single production worker. If the cloud worker fails during the submission window, re-enable the Windows task as a temporary fallback.
+During the completed cutover, Slack's support for multiple Socket Mode connections allowed the cloud service to be validated before the Windows process was stopped. The cloud worker is now the only active production worker. Do not run `npm run restart` on Windows during normal judging operations. If the cloud worker fails and cannot be restored promptly, the disabled Windows task remains a temporary emergency fallback.
 
 Do not delete the cloud VM until judging ends on August 6, 2026 and the organizers no longer need sandbox access.

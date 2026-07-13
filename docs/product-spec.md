@@ -6,15 +6,15 @@ Contradiction Radar helps a Slack user check whether a current requirement, deci
 
 ## Primary flow
 
-1. The user opens the agent Messages tab while viewing a Slack message, or pastes/types a current claim.
+1. The user opens the agent Messages tab and pastes or types a current claim.
 2. The agent extracts one checkable claim or asks one precise clarifying question.
 3. The agent checks `assistant.search.info`, then performs one semantic question and/or one keyword search through `assistant.search.context` using the event `action_token`.
-4. Up to 20 candidates are normalized; at most three high-value findings are shown.
-5. A local NLI model estimates entailment, contradiction, and neutrality. Deterministic policy checks scope, time, environment, version, authority, proposal status, and supersession.
+4. Up to 20 candidates are normalized; at most three conflict, mismatch, or clarification findings are shown. Non-conflicting candidates are omitted.
+5. A self-hosted NLI model estimates entailment, contradiction, and neutrality. Deterministic policy checks scope, time, environment, version, proposal status, and supersession.
 6. Each evidence card shows the current claim, previous evidence, label, cautious explanation, confidence, and Slack permalinks.
 7. The user can add context, mark resolved, or report a false positive. Added context causes a fresh classification.
 
-## Labels
+## Visible finding labels
 
 - Direct contradiction
 - Requirement conflict
@@ -22,7 +22,8 @@ Contradiction Radar helps a Slack user check whether a current requirement, deci
 - Scope mismatch
 - Time mismatch
 - Needs clarification
-- No contradiction
+
+`No contradiction` remains an internal classification outcome used by tests and ranking policy, but it is not rendered as an evidence card. If every candidate is non-conflicting, the user sees one concise **No likely conflict found** message.
 
 ## Quality bar
 
@@ -35,7 +36,7 @@ Contradiction Radar helps a Slack user check whether a current requirement, deci
 
 ## Privacy and retention
 
-The app passes user-triggered Slack content only to Slack's permission-aware APIs and a local process on the development host. Raw message bodies are processed transiently and are not written to disk. Logs contain operational metadata only. Feedback stores only message identifiers/permalinks, chosen labels, reason codes, actor IDs, and timestamps.
+The app passes user-triggered Slack content only to Slack's permission-aware APIs and the self-hosted process on the private judging VM. Raw message bodies are processed transiently and are not written to disk. Logs contain operational metadata only. Feedback stores only message identifiers/permalinks, chosen labels, reason codes, actor IDs, and timestamps.
 
 ## Non-goals
 
@@ -44,4 +45,3 @@ The app passes user-triggered Slack content only to Slack's permission-aware API
 - Training on workspace content.
 - Remote model inference.
 - Access to messages the requesting user cannot already read.
-

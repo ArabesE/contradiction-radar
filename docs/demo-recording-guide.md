@@ -6,10 +6,10 @@ Record the English voice-over and Slack interaction, upload the final video publ
 
 ## Before recording
 
-- Run `npm run restart` and `npm run health`.
+- Confirm the cloud worker with one fresh Slack check. Do **not** run `npm run restart` on Windows while the cloud worker is active; that command starts the disabled fallback worker and can create duplicate Socket Mode consumers.
 - Set Slack zoom to 100% and Chrome to 1440×900 or higher.
 - Close token/configuration tabs, terminals containing environment work, notifications, and unrelated DMs.
-- Use the newest Atlas and SSO threads or create one clean take with the exact prompts in `demo-script.md`.
+- Create clean Atlas and SSO threads with the exact prompts in `demo-script.md`. Older threads may still contain the retired opening disclaimer or `No contradiction` cards because Slack messages are not edited retroactively.
 - Keep the `[DEMO DATA]` prefix visible when showing `#general`.
 - Open `docs/architecture.png` before recording for the architecture segment.
 - Do one silent rehearsal; confirm both evidence links and all three action buttons are visible.
@@ -27,7 +27,7 @@ Record the English voice-over and Slack interaction, upload the final video publ
 
 - Use hard cuts; no long intro animation.
 - Add the subtitles from `demo-subtitles.srt` and adjust timestamps to the actual take.
-- Never zoom/crop out Slack evidence links or the “Decision support, not a verdict” line.
+- Keep the finding label, explanation, confidence, both Slack evidence links, and the three human-control buttons readable. The retired opening disclaimer should not appear in a new thread.
 - Blur any unexpected workspace content. Do not show `.env.local`, app token pages, terminal history, browser autofill, or Devpost login details.
 - End on the product result, not a terminal.
 

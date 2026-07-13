@@ -19,7 +19,7 @@
 
 ## Quality and security
 
-- [x] `npm run check`: lint, typecheck, tests, build
+- [x] `npm run check`: lint, typecheck, 30/30 tests, build
 - [x] `npm run evaluate`: 28/28 fixed-fixture exact labels; 0 fallbacks
 - [x] `npm run health`: healthy/team/search/semantic checks
 - [x] `npm audit --omit=dev`: 0 vulnerabilities
@@ -38,6 +38,7 @@
 - [x] Judge testing instructions
 - [x] Under-three-minute demo script
 - [x] Recording guide and SRT subtitles
+- [x] Recording materials updated for the cloud-only worker and simplified Slack findings
 - [x] Devpost long-form copy
 - [ ] Final English video recorded by human
 - [ ] Video reviewed frame-by-frame for secrets

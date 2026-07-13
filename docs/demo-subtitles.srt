@@ -8,7 +8,7 @@ It is a new Slack Agent using the current Agent Messages experience. I ask it to
 
 3
 00:00:43,000 --> 00:01:16,000
-The earlier security requirement makes September fifteenth incompatible, so the agent flags a high-confidence requirement conflict. It also catches the later October eighth decision as superseding the original date. Every result explains why and links to both Slack messages.
+The earlier security requirement makes September fifteenth incompatible, so the agent flags a high-confidence requirement conflict. It also catches the later October eighth decision as superseding the original date. Every result links to both Slack messages, while non-conflicting results stay out of the way.
 
 4
 00:01:16,000 --> 00:01:55,000
@@ -16,8 +16,8 @@ Conservative reasoning is the product. This SSO statement first looks incompatib
 
 5
 00:01:55,000 --> 00:02:15,000
-Users can add context, mark resolved, or report a false positive. Feedback stores identifiers and reason codes, never raw message text. The quantized NLI model runs locally.
+Users can add context, mark resolved, or report a false positive. Feedback stores identifiers and reason codes, never raw message text. The quantized NLI model runs inside our private cloud worker.
 
 6
 00:02:15,000 --> 00:02:35,000
-Bolt and Socket Mode connect the agent, Slack remains the permission boundary, and a local NLI-plus-rules ensemble handles scope, time, versions, proposals, and supersession. Contradiction Radar turns Slack history into cautious, evidence-backed decision support.
+Bolt and Socket Mode connect the agent, Slack remains the permission boundary, and a self-hosted NLI-plus-rules ensemble handles scope, time, versions, proposals, and supersession. Contradiction Radar turns Slack history into cautious, evidence-backed decision support.

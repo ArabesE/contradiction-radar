@@ -22,7 +22,7 @@ We built Contradiction Radar to catch that decision drift while there is still t
 
 ## What it does
 
-Contradiction Radar is the teammate who remembers what the team decided—and shows its receipts. In a direct message, a user asks it to check a current claim or the message they are viewing. The agent uses Slack's permission-aware Real-time Search API to retrieve earlier workspace evidence, then returns up to three explainable findings:
+Contradiction Radar is the teammate who remembers what the team decided—and shows its receipts. In a direct message, a user types or pastes a current claim. The agent uses Slack's permission-aware Real-time Search API to retrieve earlier workspace evidence, then returns up to three explainable findings:
 
 - Direct contradiction
 - Requirement conflict
@@ -30,9 +30,8 @@ Contradiction Radar is the teammate who remembers what the team decided—and sh
 - Scope mismatch
 - Time mismatch
 - Needs clarification
-- No contradiction
 
-Each finding includes cautious language, confidence/severity, and Slack permalinks to both pieces of evidence. The user can add missing context, mark the issue resolved, or flag a false positive. Added context triggers a fresh classification, so the answer can change from “conflict” to “scope mismatch” when a version or environment becomes clear.
+Each finding includes cautious language, confidence/severity, and Slack permalinks to both pieces of evidence. Non-conflicting candidates are omitted; if no likely conflict remains, the agent gives one short answer instead of displaying low-value cards. The user can add missing context, mark the issue resolved, or flag a false positive. Added context triggers a fresh classification, so the answer can change from “conflict” to “scope mismatch” when a version or environment becomes clear.
 
 ## How we built it
 
@@ -40,7 +39,7 @@ We deliberately split the problem in two: Slack decides what evidence the user i
 
 Contradiction Radar uses the current Slack `agent_view` Messages experience, Bolt for JavaScript, TypeScript, Block Kit, and Socket Mode. A user DM provides the short-lived `action_token` required for bot-token calls to `assistant.search.context`, keeping retrieval tied to a user-initiated action and Slack's access boundary.
 
-Search candidates are normalized and de-duplicated, then scored locally with a quantized `nli-deberta-v3-xsmall` ONNX model through Transformers.js. A deterministic policy layer checks negation, requirement language, topic overlap, environment, version, customer scope, time markers, proposal status, and explicit supersession. NLI is advisory: visible scope or time differences can override an apparent contradiction.
+Search candidates are normalized and de-duplicated, then scored inside the private worker with a quantized `nli-deberta-v3-xsmall` ONNX model through Transformers.js. A deterministic policy layer checks negation, requirement language, topic overlap, environment, version, customer scope, time markers, proposal status, and explicit supersession. NLI is advisory: visible scope or time differences can override an apparent contradiction.
 
 Results are rendered as threaded Block Kit evidence cards. A free-tier Linux VM runs the Socket Mode worker with automatic boot startup, process recovery, and a five-minute Slack health watchdog. The VM exposes no application port, and the quantized model remains self-hosted inside the same private runtime boundary.
 
@@ -57,8 +56,8 @@ Finally, we treated privacy as architecture instead of copy: no remote model inf
 - Live permission-aware Slack RTS retrieval using the triggering user's `action_token`
 - A genuinely useful context loop: production/version context reclassifies a high-confidence SSO conflict as a scope mismatch
 - Explainable, permalink-backed findings with explicit human controls
-- Local quantized NLI with a pinned model revision and deterministic failure fallback
-- 28/28 automated tests and 28/28 exact labels on the declared fixed regression fixture
+- Self-hosted quantized NLI with a pinned model revision and deterministic failure fallback
+- 30/30 automated tests and 28/28 exact labels on the declared fixed regression fixture
 - Body-free operational logs and feedback, verified in the live sandbox
 - A reproducible judge path, editable diagrams.net architecture, and a resilient free-tier Linux deployment that survives reboots without depending on a laptop
 

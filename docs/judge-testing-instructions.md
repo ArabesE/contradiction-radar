@@ -7,7 +7,7 @@
 
    `Check this claim: Project Atlas must launch on September 15.`
 
-3. Expect a threaded response led by **Requirement conflict** with links to the current and earlier evidence. A separate **Superseded decision** card should identify the revised October 8 target.
+3. Expect a threaded response led by **Requirement conflict** with links to the current and earlier evidence. A separate **Superseded decision** card should identify the revised October 8 target. Unrelated `No contradiction` candidates should not appear as cards.
 4. Send:
 
    `Check this claim: SSO must be enabled for every account.`
@@ -49,7 +49,8 @@ For operator verification:
 ```bash
 systemctl is-active contradiction-radar.service
 systemctl is-active contradiction-radar-watchdog.timer
-sudo -u contradiction-radar bash -lc 'cd /opt/contradiction-radar && /usr/local/bin/node dist/scripts/health.js'
+sudo systemctl start contradiction-radar-watchdog.service
+systemctl show contradiction-radar-watchdog.service -p Result -p ExecMainStatus
 ```
 
-Healthy output reports `status: healthy`, `teamMatches: true`, `searchApiAvailable: true`, and `semanticSearchEnabled: true`.
+Healthy output reports `active` for the worker and timer, plus `Result=success` and `ExecMainStatus=0` for the watchdog. This path uses the same protected runtime configuration as the production service without printing credentials.

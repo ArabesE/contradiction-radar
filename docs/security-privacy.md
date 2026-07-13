@@ -7,11 +7,11 @@
 - Keep all findings in the agent DM unless the user explicitly chooses another destination.
 - Use Slack-provided permalinks rather than copying evidence into public channels.
 - Redact token-like strings from errors; never log Slack message bodies, actions tokens, or environment values.
-- Load secrets only from ignored `.env.local` or Task Scheduler environment setup with restrictive ACLs.
-- Store feedback without raw text. Rotate operational logs and retain them locally.
+- Load secrets only from ignored `.env.local` on Windows or the restricted `/etc/contradiction-radar.env` file on the cloud VM.
+- Store feedback without raw text. Rotate operational logs and retain them only on private worker storage.
 - Bound interactive finding state to 500 entries and ten minutes, actively sweep expiry, and consume a finding when **Add context** uses it.
-- Bound untrusted Slack text before any normalization regex or local inference work.
-- Use a local ONNX model; no Slack content is sent to OpenAI or another model provider.
+- Bound untrusted Slack text before any normalization regex or self-hosted inference work.
+- Use a self-hosted ONNX model inside the private worker; no Slack content is sent to OpenAI or another model provider.
 - Pin the Transformers.js model repository revision; review the upstream Apache-2.0 model card and dependency lockfile before release.
 - Reject bot-authored events unless they are explicit demo fixtures.
 
@@ -48,7 +48,7 @@ General channel-history, private-channel, MPIM, user-search, file-search, and fi
 
 ## Recovery and rotation
 
-- A compromised or accidentally displayed token must be revoked immediately, replaced in ignored `.env.local`, and followed by a service restart and history scan.
+- A compromised or accidentally displayed token must be revoked immediately, replaced in ignored `.env.local` for a Windows installation or `/etc/contradiction-radar.env` on the cloud VM, and followed by a service restart and history scan.
 - If the model cannot load from the pinned revision, the runtime logs a category-only warning and uses the deterministic fallback.
 - Search failure produces an honest retry/health response; it never reuses evidence from another user or fabricates a finding.
 - Reinstalling the Slack app requires revalidating `SLACK_TEAM_ID` with `npm run health`.

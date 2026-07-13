@@ -9,9 +9,9 @@ Contradiction Radar is a self-hosted TypeScript service built on Bolt for JavaSc
 3. The retrieval adapter calls `assistant.search.info` and `assistant.search.context`. It uses at most two search calls per user inquiry and returns Slack permalinks.
 4. Pure preprocessing extracts one claim and context markers.
 5. A quantized ONNX NLI model runs inside the same private VM process boundary. A deterministic fallback remains available if initialization fails.
-6. The policy layer combines NLI scores with scope/time/environment/version/authority/status rules and returns at most three findings.
-7. The Block Kit renderer sends evidence cards to the requesting user's agent DM.
-8. Feedback actions append minimal structured metadata to a local JSONL store; no message bodies are persisted.
+6. The policy layer combines NLI scores with scope, time, environment, version, proposal-status, and supersession rules, filters non-conflicting candidates, and returns at most three findings.
+7. The Block Kit renderer sends evidence cards to the requesting user's agent DM. If no likely conflict remains, it sends one brief empty-state message instead of a `No contradiction` card.
+8. Feedback actions append minimal structured metadata to a JSONL store on the private worker; no message bodies are persisted.
 
 ## Trust boundaries
 
@@ -41,7 +41,7 @@ The editable diagram is `docs/architecture.drawio`; exported copies are `docs/ar
 - Ordinary bot messages are ignored. Only explicit `[DEMO DATA]` bot fixtures can enter the demonstration corpus.
 - The self-hosted NLI model is pinned by repository revision and loaded as quantized ONNX.
 - Deterministic rules can downgrade an apparent contradiction when scope, environment, version, time, proposal status, or supersession explains the difference.
-- Ranking returns at most three findings and exposes the evidence, never an automated organizational decision.
+- Ranking returns at most three visible findings and exposes the evidence. Internal `No contradiction` outcomes are suppressed rather than displayed as low-value cards.
 
 ## Operations
 

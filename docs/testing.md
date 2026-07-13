@@ -11,13 +11,13 @@ npm run evaluate
 npm run health
 ```
 
-On 2026-07-12 the submission build produced:
+On 2026-07-13 the submission build produced:
 
 | Check | Result |
 | --- | ---: |
 | ESLint | Pass |
 | TypeScript (`--noEmit`) | Pass |
-| Automated tests | 28/28 pass |
+| Automated tests | 30/30 pass |
 | Build | Pass |
 | Fixed evaluation pairs | 28 |
 | Exact labels | 28/28 (100%) |
@@ -37,13 +37,13 @@ On 2026-07-12 the submission build produced:
 - proposal versus decision
 - no contradiction
 
-It is evaluated as an ensemble: a local NLI score plus the same deterministic policy used at runtime. Exact-match accuracy tests the final user-facing label, not the NLI model in isolation.
+It is evaluated as an ensemble: a self-hosted NLI score plus the same deterministic policy used at runtime. Exact-match accuracy tests the final policy label, not the NLI model in isolation; Block Kit tests separately verify which outcomes are shown to users.
 
 ## What the number does—and does not—mean
 
 The fixture is intentionally small, balanced, and designed alongside the product. A 28/28 result shows that the implementation meets these declared regression cases. It must not be interpreted as 100% accuracy on arbitrary workspace language, an independent benchmark, or a guarantee.
 
-Production safeguards therefore matter more than the headline score: cautious language, at most three findings, visible evidence links, scope/time overrides, an explicit no-contradiction outcome, and human feedback controls.
+Production safeguards therefore matter more than the headline score: cautious language, at most three findings, visible evidence links, scope/time overrides, suppression of non-conflicting candidates, a concise empty state, and human feedback controls.
 
 ## Live integration checks
 
@@ -55,6 +55,8 @@ The Slack sandbox was tested end to end on 2026-07-12:
 4. The SSO claim initially returns a requirement conflict; replying `This is for production version 2.` after **Add context** reclassifies the relevant evidence as a 90% scope mismatch.
 5. **False positive** records an acknowledgement while the JSONL record contains no raw message text.
 6. `npm run health` confirms the bot token targets the configured workspace and semantic search is enabled.
+
+Block-renderer regression tests also verify that the retired opening header/disclaimer and individual `No contradiction` cards do not reappear.
 
 ## Failure behavior
 
